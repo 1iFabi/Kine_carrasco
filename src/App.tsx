@@ -5,7 +5,6 @@ import BackToTop from './components/BackToTop'
 import Especialidades from './components/Especialidades'
 import Footer from './components/Footer'
 import Hero, { Header } from './components/Hero'
-import HandsVideo from './components/HandsVideo'
 import HeroScene from './components/HeroScene'
 import Intro from './components/Intro'
 import Opiniones from './components/Opiniones'
@@ -19,7 +18,7 @@ const subscribe = (cb: () => void) => {
 }
 
 export default function App() {
-  // Desktop: the live 3D scene in the sticky column. Phones: a recorded loop as the page backdrop, so they never run the 3D runtime.
+  // Desktop: the live 3D scene in the sticky column. Phones: a recorded loop in the hero, so they never run the 3D runtime.
   const isDesktop = useSyncExternalStore(subscribe, () => window.matchMedia(DESKTOP).matches)
 
   // The intro stays until the 3D scene has loaded and settled; phones have no scene to wait for.
@@ -39,13 +38,6 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      {!isDesktop && (
-        <div className="pointer-events-none fixed inset-0 -z-10 opacity-30">
-          <div className="hand-sway absolute inset-[-15%]">
-            <HandsVideo className="absolute inset-0 h-full w-full object-cover" />
-          </div>
-        </div>
-      )}
       <Intro ready={ready} />
       <Header ready={ready} />
       <main>

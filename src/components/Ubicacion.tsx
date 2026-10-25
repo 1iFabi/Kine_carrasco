@@ -1,11 +1,11 @@
 import { motion, useInView, useReducedMotion } from 'motion/react'
 import { useEffect, useRef } from 'react'
-import { Map, MapControls, MapMarker, MarkerContent, MarkerLabel, useMap } from '@/components/ui/map'
+import { Map, MapControls, MapMarker, MarkerContent, MarkerLabel, MarkerPopup, useMap } from '@/components/ui/map'
 import { DIRECTIONS_URL, MAP_POINTS, PLACES } from '../content'
 import { ArrowUpRight } from 'lucide-react'
 import { reveal } from './Especialidades'
 
-// Wide view of both cities, then the camera settles, tilted, over the consultation.
+// Wide view of Rancagua and Machalí, then the camera settles, tilted, over the consultation.
 const OVERVIEW = { center: [-70.696, -34.176] as [number, number], zoom: 11.2, pitch: 0, bearing: 0 }
 const ARRIVAL = { center: [MAP_POINTS.rancagua.longitude, MAP_POINTS.rancagua.latitude] as [number, number], zoom: 15.6, pitch: 55, bearing: -18 }
 
@@ -67,17 +67,24 @@ export default function Ubicacion() {
             >
               <Arrival go={inView} />
               <MapControls position="bottom-right" showZoom showCompass />
+              {/* Tapping the pin opens the address with the same "Cómo llegar" link as the list */}
               <MapMarker {...MAP_POINTS.rancagua}>
                 <MarkerContent>
                   <span className="block size-5 rounded-full border-[3px] border-white bg-ink shadow-[0_2px_8px_rgba(0,0,0,0.3)]" />
                   <MarkerLabel position="top" className="rounded-full bg-white px-2.5 py-1 text-xs shadow-[0_1px_4px_rgba(0,0,0,0.15)]">Consulta · Box D</MarkerLabel>
                 </MarkerContent>
-              </MapMarker>
-              <MapMarker {...MAP_POINTS.machali}>
-                <MarkerContent>
-                  <span className="block size-4 rounded-full border-2 border-ink bg-white" />
-                  <MarkerLabel position="top" className="rounded-full bg-white px-2.5 py-1 text-xs shadow-[0_1px_4px_rgba(0,0,0,0.15)]">Domicilio en Machalí</MarkerLabel>
-                </MarkerContent>
+                <MarkerPopup offset={44} focusAfterOpen={false} className="max-w-72 rounded-xl border-0 p-4">
+                  <p className="text-sm font-medium text-ink">{PLACES[0].name}</p>
+                  {PLACES[0].lines.map((line) => (
+                    <p key={line} className="mt-0.5 text-sm text-ink/80">
+                      {line}
+                    </p>
+                  ))}
+                  <a href={DIRECTIONS_URL} className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-ink underline underline-offset-4 hover:no-underline">
+                    Cómo llegar
+                    <ArrowUpRight className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  </a>
+                </MarkerPopup>
               </MapMarker>
             </Map>
           )}
