@@ -24,6 +24,8 @@
 }
 
 html {
+  /* Keeps the width steady when the intro locks and then releases the scroll */
+  scrollbar-gutter: stable;
   background: var(--color-paper);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
