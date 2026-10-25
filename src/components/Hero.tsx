@@ -2,25 +2,44 @@ import { CalendarCheck, Menu, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { DOCTORALIA_URL, NAV_LINKS, WHATSAPP_URL } from '../content'
+import { LOGO_ID, LOGO_SRC } from './Intro'
 
 // Apple-style default: critically damped spring, no overshoot.
-const rise = (delay: number) => ({
+// Held until the intro's logo has started its flight, so the page rises in behind it.
+const rise = (delay: number, ready: boolean) => ({
   initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
-  transition: { type: 'spring' as const, bounce: 0, duration: 0.8, delay },
+  animate: ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 },
+  transition: { type: 'spring' as const, bounce: 0, duration: 0.8, delay: delay + 0.3 },
 })
 
-export function Header() {
+// The header's controls fade in once the logo has landed.
+const appear = (ready: boolean) => ({
+  initial: { opacity: 0 },
+  animate: { opacity: ready ? 1 : 0 },
+  transition: { duration: 0.5, delay: ready ? 0.6 : 0 },
+})
+
+export function Header({ ready }: { ready: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <>
-      <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-6 sm:px-8 sm:pt-8 md:px-16 lg:px-20">
-        <a href="#" className="block shrink-0">
-          <img src="/logo-kine-carrasco-alt.webp" alt="Kine Carrasco" width={220} height={267} className="h-16 w-auto lg:h-20" />
+      <header className="absolute inset-x-0 top-0 z-[70] flex items-center justify-between px-5 pt-6 sm:px-8 sm:pt-8 md:px-16 lg:px-20">
+        <a href="#" aria-label="Kine Carrasco" className="block aspect-[220/267] h-16 shrink-0 lg:h-20">
+          {ready && (
+            <motion.img
+              layoutId={LOGO_ID}
+              src={LOGO_SRC}
+              alt=""
+              width={220}
+              height={267}
+              transition={{ type: 'spring', bounce: 0, duration: 0.9 }}
+              className="h-full w-full"
+            />
+          )}
         </a>
 
-        <nav aria-label="Secciones" className="liquid-glass hidden rounded-full px-8 py-3 md:block">
+        <motion.nav {...appear(ready)} aria-label="Secciones" className="liquid-glass hidden rounded-full px-8 py-3 md:block">
           <ul className="flex gap-8 text-sm font-medium">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -30,17 +49,19 @@ export function Header() {
               </li>
             ))}
           </ul>
-        </nav>
+        </motion.nav>
 
-        <a
+        <motion.a
+          {...appear(ready)}
           href={DOCTORALIA_URL}
           className="liquid-glass hidden h-10 items-center gap-2 rounded-full px-4 text-sm font-medium text-ink transition-transform active:scale-[0.97] md:flex"
         >
           <CalendarCheck className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           Agendar
-        </a>
+        </motion.a>
 
-        <button
+        <motion.button
+          {...appear(ready)}
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
@@ -50,7 +71,7 @@ export function Header() {
         >
           <Menu className={`absolute h-5 w-5 transition-all duration-300 ${menuOpen ? 'rotate-90 scale-0 opacity-0' : ''}`} strokeWidth={1.5} />
           <X className={`absolute h-5 w-5 transition-all duration-300 ${menuOpen ? '' : '-rotate-90 scale-0 opacity-0'}`} strokeWidth={1.5} />
-        </button>
+        </motion.button>
       </header>
 
       <div
@@ -90,29 +111,29 @@ export function BookingActions() {
   )
 }
 
-export default function Hero() {
+export default function Hero({ ready }: { ready: boolean }) {
   return (
     <section className="flex flex-col justify-between px-5 pt-[4.5rem] pb-8 sm:px-8 sm:pt-20 sm:pb-10 md:min-h-svh md:px-16 lg:px-20">
       <div className="mt-14 max-w-2xl sm:mt-20 md:mt-24">
         <motion.h1
-          {...rise(0.1)}
+          {...rise(0.1, ready)}
           className="text-[2.6rem] font-normal leading-[1.05] tracking-[-0.04em] text-ink sm:text-5xl lg:text-7xl"
         >
           Te explico qué te pasa.
         </motion.h1>
-        <motion.p {...rise(0.2)} className="mt-6 max-w-md text-base text-ink/80 md:text-lg">
+        <motion.p {...rise(0.2, ready)} className="mt-6 max-w-md text-base text-ink/80 md:text-lg">
           Y lo tratamos juntos. Kinesiología y terapia física con Ks. José Antonio Carrasco, 15 años en Rancagua y
           Machalí, en consulta o a domicilio.
         </motion.p>
-        <motion.div {...rise(0.3)} className="mt-8">
+        <motion.div {...rise(0.3, ready)} className="mt-8">
           <BookingActions />
         </motion.div>
-        <motion.p {...rise(0.35)} className="mt-4 text-sm text-ink/70">
+        <motion.p {...rise(0.35, ready)} className="mt-4 text-sm text-ink/70">
           Atiendo por Fonasa · Boleta reembolsable en tu Isapre
         </motion.p>
       </div>
 
-      <motion.dl {...rise(0.45)} className="mt-16 flex items-end gap-8 sm:gap-12 md:gap-16">
+      <motion.dl {...rise(0.45, ready)} className="mt-16 flex items-end gap-8 sm:gap-12 md:gap-16">
         <div>
           <dt className="sr-only">Opiniones</dt>
           <dd className="text-xl text-ink sm:text-2xl md:text-3xl">133 opiniones</dd>
