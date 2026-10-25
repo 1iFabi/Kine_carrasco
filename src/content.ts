@@ -33,10 +33,9 @@ export const SPECIALTIES = [
 // José's own Google Maps pin for the clinic (Consultorio y Laboratorio Médico San Lúcas)
 export const DIRECTIONS_URL = 'https://maps.app.goo.gl/7H8UGtBENNxBVffZ7'
 
-// rancagua: the clinic, from that pin. machali: city centre (OpenStreetMap), home visits only.
+// The clinic, from the Google Maps pin.
 export const MAP_POINTS = {
   rancagua: { longitude: -70.7420217, latitude: -34.1654847 },
-  machali: { longitude: -70.6512, latitude: -34.1825 },
 }
 
 export const PLACES = [
