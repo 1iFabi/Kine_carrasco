@@ -81,7 +81,7 @@ html {
   pointer-events: none;
 }
 
-/* Phone backdrop: the hands turn slowly behind the page */
+/* Phone hero: the recorded hands turn slowly */
 @keyframes sway {
   from {
     transform: rotate(-22deg);

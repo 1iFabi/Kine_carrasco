@@ -2,6 +2,7 @@ import { CalendarCheck, Menu, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { DOCTORALIA_URL, NAV_LINKS, WHATSAPP_URL } from '../content'
+import HandsVideo from './HandsVideo'
 import { LOGO_ID, LOGO_SRC } from './Intro'
 
 // Apple-style default: critically damped spring, no overshoot.
@@ -95,7 +96,7 @@ export function Header({ ready }: { ready: boolean }) {
 }
 
 // The page's one call to action, used at the top and again at the end.
-export function BookingActions() {
+export function BookingActions({ phoneWhatsApp = true }: { phoneWhatsApp?: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
       <a
@@ -104,34 +105,59 @@ export function BookingActions() {
       >
         Agendar en Doctoralia
       </a>
-      <a href={WHATSAPP_URL} className="text-sm font-medium text-ink underline underline-offset-4 hover:no-underline">
-        o escríbeme por WhatsApp
-      </a>
+      <WhatsAppLink className={phoneWhatsApp ? '' : 'hidden md:inline'} />
     </div>
+  )
+}
+
+function WhatsAppLink({ className = '' }: { className?: string }) {
+  return (
+    <a href={WHATSAPP_URL} className={`text-sm font-medium text-ink underline underline-offset-4 hover:no-underline ${className}`}>
+      o escríbeme por WhatsApp
+    </a>
   )
 }
 
 export default function Hero({ ready }: { ready: boolean }) {
   return (
     <section className="flex flex-col justify-between px-5 pt-[4.5rem] pb-8 sm:px-8 sm:pt-20 sm:pb-10 md:min-h-svh md:px-16 lg:px-20">
-      <div className="mt-14 max-w-2xl sm:mt-20 md:mt-24">
-        <motion.h1
-          {...rise(0.1, ready)}
-          className="text-[2.6rem] font-normal leading-[1.05] tracking-[-0.04em] text-ink sm:text-5xl lg:text-7xl"
+      {/* Phones: the first screen holds only the promise, one action and the hands; the rest waits below it */}
+      <div className="flex min-h-[calc(100svh-4.5rem)] flex-col sm:min-h-[calc(100svh-5rem)] md:block md:min-h-0">
+        <div className="mt-14 max-w-2xl sm:mt-20 md:mt-24">
+          <motion.h1
+            {...rise(0.1, ready)}
+            className="text-[2.6rem] font-normal leading-[1.05] tracking-[-0.04em] text-ink sm:text-5xl lg:text-7xl"
+          >
+            Te explico qué te pasa.
+          </motion.h1>
+          <motion.p {...rise(0.2, ready)} className="mt-6 max-w-md text-base text-ink/80 md:text-lg">
+            Y lo tratamos juntos. Kinesiología y terapia física con Ks. José Antonio Carrasco, 15 años en Rancagua y
+            Machalí, en consulta o a domicilio.
+          </motion.p>
+          <motion.div {...rise(0.3, ready)} className="mt-8">
+            <BookingActions phoneWhatsApp={false} />
+          </motion.div>
+          <motion.p {...rise(0.35, ready)} className="mt-4 hidden text-sm text-ink/70 md:block">
+            Atiendo por Fonasa · Boleta reembolsable en tu Isapre
+          </motion.p>
+        </div>
+
+        <motion.div
+          {...rise(0.35, ready)}
+          // The top edge fades so the particles never start on a hard line under the button
+          className="relative -mx-5 mt-6 min-h-64 flex-1 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%)] sm:-mx-8 md:hidden"
         >
-          Te explico qué te pasa.
-        </motion.h1>
-        <motion.p {...rise(0.2, ready)} className="mt-6 max-w-md text-base text-ink/80 md:text-lg">
-          Y lo tratamos juntos. Kinesiología y terapia física con Ks. José Antonio Carrasco, 15 años en Rancagua y
-          Machalí, en consulta o a domicilio.
-        </motion.p>
-        <motion.div {...rise(0.3, ready)} className="mt-8">
-          <BookingActions />
+          {/* No overscan: the clip's white ground matches the page, so corners the sway uncovers stay invisible */}
+          <div className="hand-sway absolute inset-0">
+            <HandsVideo className="absolute inset-0 h-full w-full object-cover" />
+          </div>
         </motion.div>
-        <motion.p {...rise(0.35, ready)} className="mt-4 text-sm text-ink/70">
-          Atiendo por Fonasa · Boleta reembolsable en tu Isapre
-        </motion.p>
       </div>
+
+      <motion.div {...rise(0.4, ready)} className="mt-8 space-y-3 md:hidden">
+        <WhatsAppLink />
+        <p className="text-sm text-ink/70">Atiendo por Fonasa · Boleta reembolsable en tu Isapre</p>
+      </motion.div>
 
       <motion.dl {...rise(0.45, ready)} className="mt-16 flex items-end gap-8 sm:gap-12 md:gap-16">
         <div>
