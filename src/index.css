@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-ink: #111114;
+  --color-paper: #ffffff;
+  --color-fog: #f4f4f5;
+  /* The particle hands' red, for the body map */
+  --color-rose: #e8456f;
+  /* Pale tints of the rose, for the section fields */
+  --color-blush: #fcf0f3;
+  --color-petal: #f8dfe6;
+
+  /* shadcn tokens used by the mapcn map, mapped onto this page's ink and paper */
+  --color-background: #ffffff;
+  --color-foreground: #111114;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #5c5c63;
+  --color-accent: #f4f4f5;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111114;
+  --color-border: #e4e4e7;
+  --color-ring: #111114;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nav links glide to their section instead of jumping */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* Liquid glass from the user's design, retuned for a white page: faint ink tint so it reads on white and over the particles */
+.liquid-glass {
+  background: rgba(17, 17, 20, 0.04);
+  background-blend-mode: luminosity;
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(
+    180deg,
+    rgba(17, 17, 20, 0.16) 0%,
+    rgba(17, 17, 20, 0.06) 20%,
+    rgba(17, 17, 20, 0) 40%,
+    rgba(17, 17, 20, 0) 60%,
+    rgba(17, 17, 20, 0.06) 80%,
+    rgba(17, 17, 20, 0.16) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Phone backdrop: the hands turn slowly behind the page */
+@keyframes sway {
+  from {
+    transform: rotate(-22deg);
+  }
+  to {
+    transform: rotate(-6deg);
+  }
+}
+
+.hand-sway {
+  animation: sway 18s ease-in-out infinite alternate;
+}
+
+/* Review timer: the bar fills, and its animationend advances to the next quote. Paused on hover or focus. */
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.review-timer {
+  animation: fill 8s linear forwards;
+  transform-origin: left;
+}
+
+.review-stage:hover .review-timer,
+.review-stage:focus-within .review-timer {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-timer {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@layer base {
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+  .maplibregl-ctrl-attrib {
+    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+  }
+  .maplibregl-ctrl-attrib a {
+    @apply text-muted-foreground!;
+  }
+  .maplibregl-ctrl-attrib a:hover {
+    @apply text-foreground!;
+  }
+  .maplibregl-ctrl-attrib-button {
+    @apply bg-transparent! dark:invert;
+  }
+}
