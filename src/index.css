@@ -2,25 +2,38 @@
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
-  --color-ink: #111114;
-  --color-paper: #ffffff;
-  --color-fog: #f4f4f5;
-  /* The particle hands' red, for the body map */
-  --color-rose: #e8456f;
-  /* Pale tints of the rose, for the section fields */
-  --color-blush: #fcf0f3;
-  --color-petal: #f8dfe6;
+  --color-ink: #14171a;
+  /* Palette: sky blue #0593C6, white #FCFFFF, night #091720 (the pink of "Celeste + Rosado" left out on
+     purpose). The token names stay teal-* so no component changes; read them as "the accent". */
+  /* Two grounds only: paper for the whole page, night for the close. Sections part by space, not by shade */
+  --color-paper: #fcffff;
+  /* Night: the hands video's own ground once tinted (.hands-hero), so the video shows no edges */
+  --color-night: #091720;
+  --color-on-night: #fcffff;
+  /* Sky blue darkened for text on paper (links, WhatsApp, the current section): 4.8:1, #0593C6 itself is 3.5:1 */
+  --color-teal: #047ba8;
+  /* Booking, filled, on paper and on night: the sky blue darkened so white on it is 4.8:1 */
+  --color-teal-deep: #047ba8;
+  /* The palette's sky blue as chosen, for text, WhatsApp and the back-to-top button on night (5.2:1 there) */
+  --color-teal-night: #0593c6;
 
-  /* shadcn tokens used by the mapcn map, mapped onto this page's ink and paper */
+  /* One vertical rhythm for every section, so the page shrinks together */
+  --spacing-section: clamp(4rem, 7vw, 6.5rem);
+
+  /* shadcn tokens (mapcn map, Card, Badge), mapped onto this page's ink and paper */
+  --color-card: #ffffff;
+  --color-card-foreground: #14171a;
+  --color-primary: #047ba8;
+  --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
-  --color-foreground: #111114;
+  --color-foreground: #14171a;
   --color-muted: #f4f4f5;
   --color-muted-foreground: #5c5c63;
   --color-accent: #f4f4f5;
   --color-popover: #ffffff;
   --color-popover-foreground: #111114;
   --color-border: #e4e4e7;
-  --color-ring: #111114;
+  --color-ring: #14171a;
 }
 
 html {
@@ -48,37 +61,28 @@ html {
   outline-offset: 3px;
 }
 
-/* Liquid glass from the user's design, retuned for a white page: faint ink tint so it reads on white and over the particles */
-.liquid-glass {
-  background: rgba(17, 17, 20, 0.04);
-  background-blend-mode: luminosity;
-  -webkit-backdrop-filter: blur(8px) saturate(160%);
-  backdrop-filter: blur(8px) saturate(160%);
-  border: none;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  position: relative;
-  overflow: hidden;
+.bg-night :focus-visible {
+  outline-color: var(--color-on-night);
 }
 
-.liquid-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.4px;
-  background: linear-gradient(
-    180deg,
-    rgba(17, 17, 20, 0.16) 0%,
-    rgba(17, 17, 20, 0.06) 20%,
-    rgba(17, 17, 20, 0) 40%,
-    rgba(17, 17, 20, 0) 60%,
-    rgba(17, 17, 20, 0.06) 80%,
-    rgba(17, 17, 20, 0.16) 100%
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+/* Text states swap (transitions.dev): the old label exits up with a blur, the new one rises from below */
+.t-text-swap {
+  display: inline-block;
+  transition:
+    transform 150ms ease-in-out,
+    filter 150ms ease-in-out,
+    opacity 150ms ease-in-out;
+}
+.t-text-swap.is-exit {
+  transform: translateY(-4px);
+  filter: blur(2px);
+  opacity: 0;
+}
+.t-text-swap.is-enter-start {
+  transform: translateY(4px);
+  filter: blur(2px);
+  opacity: 0;
+  transition: none;
 }
 
 /* Phone hero: the recorded hands turn slowly */
@@ -95,37 +99,25 @@ html {
   animation: sway 18s ease-in-out infinite alternate;
 }
 
-/* Review timer: the bar fills, and its animationend advances to the next quote. Paused on hover or focus. */
-@keyframes fill {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
+/* The hands assets are teal (hero) and pink (agenda). Contrast pushes the files' own dark ground to black,
+   and lighten keeps only what is brighter than night, so that ground never shows as a rectangle, whatever
+   colour a browser decodes it to. In the hero the blend sits on the video's masked wrapper (mix-blend-lighten
+   in Hero.tsx): a mask isolates its contents, so a blend on the video itself would only meet transparency.
+   shortcut: the hero's teal is turned sky blue by a filter on every frame; re-encode hands-teal.mp4 and its
+   poster in sky blue on black if phones stutter, then drop the filter. */
+.hands-hero {
+  /* contrast sends the ground (about 15% grey) to black; brightness then lifts the hands, and black stays black */
+  filter: hue-rotate(35deg) saturate(1.3) contrast(1.45) brightness(1.8);
 }
-
-.review-timer {
-  animation: fill 8s linear forwards;
-  transform-origin: left;
-}
-
-.review-stage:hover .review-timer,
-.review-stage:focus-within .review-timer {
-  animation-play-state: paused;
+/* The agenda's hands are pink in the file; turned sky blue to match the hero */
+.hands-agenda {
+  filter: hue-rotate(-140deg) saturate(1.3) contrast(1.8);
+  mix-blend-mode: lighten;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .review-timer {
-    animation: none;
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .liquid-glass {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+  .t-text-swap {
+    transition: none !important;
   }
 }
 
@@ -149,3 +141,4 @@ html {
     @apply bg-transparent! dark:invert;
   }
 }
+
