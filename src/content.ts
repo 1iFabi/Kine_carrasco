@@ -1,32 +1,35 @@
 export const DOCTORALIA_URL = 'https://www.doctoralia.cl/perfil/jose-antonio-carrasco-gomez'
-// shortcut: WhatsApp number not provided yet, replace [NÚMERO] before launch
-export const WHATSAPP_URL = '#whatsapp'
+// +56 9 3773 9956, from his current site (kinesiologiayterapiafisica.com), confirmed as his WhatsApp
+export const WHATSAPP_URL = 'https://wa.me/56937739956'
 
+// In page order: the nav's "you are here" reads the sections in this order
 export const NAV_LINKS = [
   { href: '#especialidades', label: 'Especialidades' },
-  { href: '#opiniones', label: 'Opiniones' },
-  { href: '#atencion', label: 'Dónde atiendo' },
-
+  { href: '#dolor', label: 'Tratamientos' },
+  { href: '#quien-soy', label: 'Quién soy' },
+  { href: '#atencion', label: 'Contacto' },
 ]
 
 // From his Doctoralia profile. Prices only where Doctoralia lists one.
+// photo: path under public/servicios/; a service without one shows a reserved frame until the photo arrives
+// shortcut: the 'about' lines are plain descriptions of each discipline, to be approved by José before launch
 export const SPECIALTIES = [
   {
     group: 'Rehabilitación',
     note: 'En consulta o a domicilio',
     items: [
-      { name: 'Traumatología', zones: ['hombro', 'espalda', 'rodilla'], detail: 'Desgarros, tendinitis, bursitis, lumbago, ciática y escoliosis.', value: 'Adultos y niños' },
-      { name: 'Rehabilitación deportiva', zones: ['rodilla'], detail: 'Vuelta al deporte después de una lesión.', value: 'Reintegro' },
-      { name: 'Kinesiología respiratoria', zones: ['pecho'], detail: 'Ejercicios respiratorios y terapia para el pecho.', value: 'Desde guaguas' },
-      { name: 'Neurorrehabilitación', zones: ['cabeza'], detail: 'Recuperar movimiento después de un ACV u otra lesión neurológica.', value: 'Adultos' },
-      { name: 'Terapia manual y electroterapia', zones: ['hombro', 'espalda'], detail: 'Con las manos y con equipos, según lo que necesites.', value: 'Consultar' },
-      { name: 'Gimnasia médica', zones: ['espalda', 'rodilla'], detail: 'Ejercicio guiado para fortalecer y prevenir.', value: 'Consultar' },
+      { name: 'Traumatología', about: 'Trabajamos lesiones de músculos, articulaciones, huesos y ligamentos. El tratamiento combina ejercicios terapéuticos y medios físicos, según lo que tengas.', zones: ['hombro', 'espalda', 'rodilla'], detail: 'Desgarros, tendinitis, bursitis, lumbago, ciática y escoliosis.', value: 'Adultos y niños' },
+      { name: 'Rehabilitación deportiva', about: 'Planificamos la vuelta al deporte después de una lesión: fuerza, movimiento y carga, en etapas claras y medibles.', zones: ['rodilla'], detail: 'Vuelta al deporte después de una lesión.', value: 'Reintegro' },
+      { name: 'Kinesiología respiratoria', about: 'Ejercicios para mejorar la respiración y el manejo de secreciones del pecho. Trabajamos también con niños y guaguas, con indicaciones para la casa.', zones: ['pecho'], detail: 'Ejercicios respiratorios y terapia para el pecho.', value: 'Desde guaguas' },
+      { name: 'Neurorrehabilitación', about: 'Recuperamos movimiento y funciones después de un ACV u otra lesión del sistema nervioso, con ejercicios a tu ritmo.', zones: ['cabeza'], detail: 'Recuperar movimiento después de un ACV u otra lesión neurológica.', value: 'Adultos' },
+      { name: 'Terapia manual y electroterapia', about: 'Técnicas con las manos y equipos de electroterapia para aliviar el dolor y recuperar movilidad, según lo que necesites.', zones: ['hombro', 'espalda'], detail: 'Con las manos y con equipos, según lo que necesites.', value: 'Consultar' },
+      { name: 'Gimnasia médica', about: 'Ejercicio guiado para fortalecer músculos y prevenir lesiones, con un programa que se ajusta a cada persona.', zones: ['espalda', 'rodilla'], detail: 'Ejercicio guiado para fortalecer y prevenir.', value: 'Consultar' },
     ],
   },
   {
     group: 'Estética',
     note: 'Sin cirugía',
-    items: [{ name: 'Criolipólisis', zones: ['cintura'], detail: 'Reducción de grasa localizada, sin cirugía.', value: 'Desde $45.000' }],
+    items: [{ name: 'Criolipólisis', about: 'Tratamiento estético para reducir la grasa localizada, sin cirugía.', zones: ['cintura'], detail: 'Reducción de grasa localizada, sin cirugía.', value: 'Desde $45.000' }],
   },
 ]
 
@@ -54,4 +57,15 @@ export const REVIEWS = [
   { quote: 'Excelente kinesiólogo, muy profesional en su trabajo. Además, es una persona muy amable y sabe cómo tratar a sus pacientes…', author: 'Nela', date: 'sep 2026' },
   { quote: 'Excelente atención y puntualidad las explicaciones muy detallada', author: 'Daniela N.', date: 'ago 2026' },
   { quote: 'Muy buen trabajo, dedicación y muy buen trato. Muy profesional', author: 'M. M. M.', date: 'oct 2026' },
+]
+
+// Patient words for each concern, each pointing to the specialty that treats it.
+// shortcut: wording drafted, José approves it before launch
+export const SYMPTOMS = [
+  { label: 'Me duele la espalda al despertar', service: 'Traumatología', zones: ['espalda'] },
+  { label: 'Me baja un dolor u hormigueo por la pierna', service: 'Traumatología', zones: ['espalda', 'pierna'] },
+  { label: 'Me duele la rodilla al subir escaleras', service: 'Traumatología', zones: ['rodilla'] },
+  { label: 'Quiero volver a correr después de una lesión', service: 'Rehabilitación deportiva', zones: ['rodilla', 'pierna'] },
+  { label: 'Mi guagua tiene tos que no se le va', service: 'Kinesiología respiratoria', zones: ['pecho'] },
+  { label: 'Después de un ACV quiero recuperar movimiento', service: 'Neurorrehabilitación', zones: ['cabeza'] },
 ]

@@ -10,8 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@splinetool/react-spline": "^4.1.0",
-    "@splinetool/runtime": "^2.0.111",
+    "@fontsource/inter": "^5.3.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.61.0",
     "maplibre-gl": "^6.16.0",

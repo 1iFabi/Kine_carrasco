@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kinecarrasco.vercel.app/sitemap.xml
