@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { useEffect, useEffectEvent, useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { SPECIALTIES, SYMPTOMS } from '../content'
 import { QuickBook } from './Hero'
 
@@ -22,82 +22,56 @@ export const slug = (text: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
-// Accordion row (transitions.dev): one row opens in place. The panel grows through grid rows, so no height is measured.
-// A link with the row's hash opens it and brings it to the centre of the screen.
-function Row({ id, title, delay, children }: { id: string; title: string; delay: number; children: ReactNode }) {
-  const [open, setOpen] = useState(false)
-  const openFromHash = useEffectEvent(() => setOpen(true))
-
-  useEffect(() => {
-    const fromHash = () => {
-      if (window.location.hash !== `#${id}`) return
-      openFromHash()
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })
-    }
-    fromHash()
-    window.addEventListener('hashchange', fromHash)
-    return () => window.removeEventListener('hashchange', fromHash)
-  }, [id])
-
-  return (
-    <motion.li {...reveal(delay)} id={id} className="scroll-mt-32">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={`${id}-panel`}
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between gap-6 py-6 text-left"
-      >
-        <span className="text-2xl font-medium tracking-[-0.02em] md:text-3xl">{title}</span>
-        <span
-          className={`inline-flex shrink-0 text-ink transition-transform duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? 'scale-y-[-1]' : ''}`}
-          aria-hidden="true"
-        >
-          <svg viewBox="0 0 16 16" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 6.5L8 10.5L12 6.5" />
-          </svg>
-        </span>
-      </button>
-      <div
-        id={`${id}-panel`}
-        className={`grid transition-[grid-template-rows] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-      >
-        <div className={`overflow-hidden transition-[opacity,filter] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? 'opacity-100 blur-none' : 'opacity-0 blur-[2px]'}`}>
-          <div className="max-w-[52ch] pb-8">{children}</div>
-        </div>
-      </div>
-    </motion.li>
-  )
-}
-
-// "¿Dónde te duele?": the patient's words, each opening to how it is treated and to booking.
-// Comes after "¿Qué trato?", so the specialty is named once, inside the open row, not under every closed one.
+// "¿Dónde te duele?": the patient's words set large; the one chosen stays in ink and its answer fills a night panel.
+// Comes after "¿Qué trato?", so the specialty is named once, in the panel, not under every phrase.
 export function Dolor() {
+  const [open, setOpen] = useState(0)
+  const s = SYMPTOMS[open]
+  // Rendered twice and shown once: under the chosen phrase on phones, in the right half on wide screens
+  const panel = (className: string) => (
+    <motion.div
+      key={open}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.45 }}
+      className={`flex-col rounded-3xl bg-night p-7 text-on-night md:min-h-[29rem] md:p-12 ${className}`}
+    >
+      <p className="text-base font-semibold text-teal-night">{s.label}</p>
+      <h3 className="mt-3 text-4xl leading-none font-medium tracking-[-0.035em] lg:text-6xl">{s.service}</h3>
+      <p className="mt-5 max-w-[36ch] text-lg text-on-night/85 lg:text-xl">{serviceNamed(s.service)?.about}</p>
+      <div className="mt-auto pt-8">
+        <QuickBook onNight whatsappText={`Hola José, quiero consultar por esto: ${s.label.toLowerCase()}`} />
+      </div>
+    </motion.div>
+  )
+
   return (
     <section id="dolor" className="scroll-mt-8 bg-paper px-5 py-section sm:px-8 md:px-16 lg:px-20">
-      {/* Wide screens: the question stays on the left while the answers open on the right */}
-      <div className="grid gap-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-16">
-        <div className="self-start md:sticky md:top-28">
+      <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+        <div>
           <motion.h2 {...reveal(0)} className="text-5xl font-normal leading-[1.02] tracking-[-0.04em] md:text-7xl">
             ¿Dónde te duele?
           </motion.h2>
           <motion.p {...reveal(0.05)} className="mt-6 max-w-md text-lg text-ink/80 md:text-xl">
             Toca lo que te pasa y te cuento cómo lo trabajamos.
           </motion.p>
+          <ul className="mt-8 md:mt-10">
+            {SYMPTOMS.map((item, i) => (
+              <motion.li key={item.label} {...reveal(0.04 * i)}>
+                <button
+                  type="button"
+                  aria-pressed={i === open}
+                  onClick={() => setOpen(i)}
+                  className={`block w-full py-3 text-left text-2xl leading-[1.15] font-medium tracking-[-0.025em] transition-[color,translate] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-3xl ${i === open ? 'text-ink md:translate-x-3.5' : 'text-ink/60 hover:text-ink/85'}`}
+                >
+                  {item.label}
+                </button>
+                {i === open && panel('mt-2 mb-4 flex md:hidden')}
+              </motion.li>
+            ))}
+          </ul>
         </div>
-        <ul>
-          {SYMPTOMS.map((s, i) => (
-            <Row key={s.label} id={`sintoma-${i + 1}`} title={s.label} delay={0.04 * i}>
-              <p className="text-lg text-ink/85">
-                <span className="font-semibold text-ink">{s.service}.</span> {serviceNamed(s.service)?.about}
-              </p>
-              <div className="mt-6">
-                <QuickBook />
-              </div>
-            </Row>
-          ))}
-        </ul>
+        {panel('hidden self-center md:flex')}
       </div>
     </section>
   )

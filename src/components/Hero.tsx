@@ -219,7 +219,8 @@ export function WhatsAppLink({ className = '', night = false, children = 'Escrí
 // Compact pair for inside a symptom row or a service card: each way to book as its brand's mark and name,
 // under a line that says what both are for
 // onNight: the same buttons drawn for the dark cards of "¿Qué trato?"
-export function QuickBook({ onNight = false }: { onNight?: boolean }) {
+// whatsappText: opens the chat with that message already written
+export function QuickBook({ onNight = false, whatsappText }: { onNight?: boolean; whatsappText?: string }) {
   return (
     <div>
       <p className={`text-base font-semibold ${onNight ? 'text-on-night' : 'text-ink'}`}>Agenda tu hora</p>
@@ -233,7 +234,7 @@ export function QuickBook({ onNight = false }: { onNight?: boolean }) {
         Doctoralia
       </a>
       <a
-        href={WHATSAPP_URL}
+        href={whatsappText ? `${WHATSAPP_URL}?text=${encodeURIComponent(whatsappText)}` : WHATSAPP_URL}
         aria-label="Escribir por WhatsApp"
         className={`inline-flex h-12 items-center gap-2.5 rounded-full border-2 px-5 text-base font-semibold transition-colors duration-200 active:scale-[0.97] ${onNight ? 'border-teal-night text-teal-night hover:bg-teal-night hover:text-night' : 'border-teal text-teal hover:bg-teal hover:text-white'}`}
       >
