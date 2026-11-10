@@ -1,6 +1,6 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DOCTORALIA_URL, REVIEWS } from '../content'
 import { reveal } from './Especialidades'
@@ -13,17 +13,57 @@ const FACTS = [
   ['Previsión', 'Fonasa · boleta reembolsable en Isapre'],
 ]
 
-// Phones show this many reviews before "Ver más"
-const FIRST = 3
+// The first review is the statement; the rest ride the rail
+const [LEAD, ...REST] = REVIEWS
+const WORDS = `“${LEAD.quote}”`.split(' ')
+// The words of his slogan ("Te lo explico") take the accent
+const KEY = /explica|detalladamente/
 
-// Who he is and what his patients say, as one section: his card stays beside the reviews while you read them.
-// The photo is the one on his current site (kinesiologiayterapiafisica.com).
-export default function QuienSoy() {
-  const [all, setAll] = useState(false)
+// The statement turns to ink word by word as it crosses the middle of the screen, and back on the way up
+function Statement() {
+  const ref = useRef<HTMLQuoteElement>(null)
+  const [lit, setLit] = useState(WORDS.length)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const light = () => {
+      const r = ref.current!.getBoundingClientRect(), vh = window.innerHeight
+      setLit(Math.round(Math.max(0, Math.min(1, (vh * 0.82 - r.top) / (r.height + vh * 0.3))) * WORDS.length))
+    }
+    light()
+    window.addEventListener('scroll', light, { passive: true })
+    window.addEventListener('resize', light)
+    return () => {
+      window.removeEventListener('scroll', light)
+      window.removeEventListener('resize', light)
+    }
+  }, [])
 
   return (
-    <section id="quien-soy" className="scroll-mt-8 bg-paper px-5 py-section sm:px-8 md:px-16 lg:px-20">
-      {/* Phones: heading, card, reviews. Wide screens: the card on the left, beside the heading and the reviews */}
+    <blockquote ref={ref} className="text-3xl leading-[1.08] font-medium tracking-[-0.03em] md:text-5xl">
+      {WORDS.map((word, i) => (
+        <span key={i} className={`transition-colors duration-300 ${i >= lit ? 'text-ink/35' : KEY.test(word) ? 'text-teal' : 'text-ink'}`}>
+          {word}{' '}
+        </span>
+      ))}
+    </blockquote>
+  )
+}
+
+// Who he is and what his patients say, as one section: his card beside one review set large and the count,
+// then the other reviews on a rail you drag or step through.
+// The photo is the one on his current site (kinesiologiayterapiafisica.com).
+export default function QuienSoy() {
+  const rail = useRef<HTMLUListElement>(null)
+  const step = (dir: number) => {
+    const el = rail.current!
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollBy({ left: dir * ((el.firstElementChild as HTMLElement).offsetWidth + 16), behavior: reduce ? 'auto' : 'smooth' })
+  }
+
+  return (
+    <section id="quien-soy" className="scroll-mt-8 overflow-x-clip bg-paper px-5 py-section sm:px-8 md:px-16 lg:px-20">
+      {/* Phones: heading, card, reviews. Wide screens: the card on the left, beside the heading and the statement */}
       <div className="grid gap-12 lg:grid-cols-[24rem_minmax(0,1fr)] lg:gap-x-20 lg:gap-y-16">
         <div className="lg:col-start-2 lg:row-start-1">
           <motion.h2 {...reveal(0)} className="text-5xl font-normal leading-[1.02] tracking-[-0.04em] md:text-7xl">
@@ -51,12 +91,7 @@ export default function QuienSoy() {
               <CardDescription className="text-base text-ink/75">Kinesiólogo y profesor de Educación Física</CardDescription>
             </CardHeader>
             <CardContent className="px-6 pt-5 pb-7">
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-teal px-3 py-1 text-sm font-medium text-white">Certificado de excelencia 2024 · 2025</span>
-                <span className="rounded-full border border-ink/15 px-3 py-1 text-sm font-medium">
-                  133 opiniones en Doctoralia
-                </span>
-              </div>
+              <span className="rounded-full bg-teal px-3 py-1 text-sm font-medium text-white">Certificado de excelencia 2024 · 2025</span>
               <dl className="mt-6 grid gap-3 text-base">
                 {FACTS.map(([term, value]) => (
                   <div key={term} className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-3">
@@ -73,36 +108,58 @@ export default function QuienSoy() {
           <h3 id="opiniones" className="scroll-mt-28 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
             Lo que dicen mis pacientes
           </h3>
-          <ul className="mt-8 grid gap-x-12 gap-y-10 sm:grid-cols-2">
-            {REVIEWS.map((review, i) => (
-              <motion.li key={review.author} {...reveal(0.04 * (i % 2))} className={!all && i >= FIRST ? 'hidden sm:block' : ''}>
-                <figure>
-                  <blockquote className="text-lg leading-snug md:text-xl">“{review.quote}”</blockquote>
-                  <figcaption className="mt-3 text-base">
-                    {review.author}
-                    <span className="text-ink/70"> · Paciente · {review.date}</span>
-                  </figcaption>
-                </figure>
-              </motion.li>
-            ))}
-          </ul>
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-            {!all && (
-              <button
-                type="button"
-                onClick={() => setAll(true)}
-                className="h-12 rounded-full border-2 border-ink px-6 text-base font-semibold transition-colors hover:bg-ink hover:text-paper sm:hidden"
-              >
-                Ver más opiniones
-              </button>
-            )}
-            <a href={DOCTORALIA_URL} className="inline-flex items-center gap-1 text-base font-semibold text-teal underline underline-offset-4 hover:no-underline">
-              Leer las 133 opiniones en Doctoralia
-              <ArrowUpRight className="size-4" strokeWidth={1.75} aria-hidden="true" />
-            </a>
+          <figure className="mt-8">
+            <Statement />
+            <figcaption className="mt-6 text-base">
+              <span className="font-semibold">{LEAD.author}</span>
+              <span className="text-ink/70"> · Paciente · {LEAD.date}</span>
+            </figcaption>
+          </figure>
+          <div className="mt-12 flex flex-wrap items-end gap-x-8 gap-y-4">
+            <p className="text-8xl leading-[0.82] font-medium tracking-[-0.06em] text-teal md:text-9xl">133</p>
+            <div>
+              <p className="text-lg">opiniones en Doctoralia</p>
+              <a href={DOCTORALIA_URL} className="mt-1 inline-flex items-center gap-1 text-base font-semibold text-teal underline underline-offset-4 hover:no-underline">
+                Leer las 133 opiniones
+                <ArrowUpRight className="size-4" strokeWidth={1.75} aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
+
+      <div className="mt-14 hidden justify-end gap-2.5 sm:flex">
+        {([[-1, 'Opiniones anteriores', ArrowLeft], [1, 'Más opiniones', ArrowRight]] as const).map(([dir, label, Icon]) => (
+          <button
+            key={label}
+            type="button"
+            aria-label={label}
+            onClick={() => step(dir)}
+            className="inline-flex size-13 items-center justify-center rounded-full bg-[#eef5f8] transition-[background-color,scale] duration-200 hover:bg-[#dcebf1] active:scale-[0.94]"
+          >
+            <Icon className="size-5" strokeWidth={1.75} aria-hidden="true" />
+          </button>
+        ))}
+      </div>
+      {/* The rail runs to the screen's edges; its first card starts on the page margin */}
+      <ul
+        ref={rail}
+        tabIndex={0}
+        aria-label="Más opiniones de pacientes"
+        className="-mx-5 mt-12 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-3 [scrollbar-width:none] sm:-mx-8 sm:mt-5 sm:scroll-px-8 sm:px-8 md:-mx-16 md:scroll-px-16 md:px-16 lg:-mx-20 lg:scroll-px-20 lg:px-20 [&::-webkit-scrollbar]:hidden"
+      >
+        {REST.map((review) => (
+          <li key={review.author} className="flex min-h-56 w-[min(84vw,25rem)] shrink-0 snap-start flex-col rounded-3xl bg-[#eef5f8] p-7">
+            <figure className="flex flex-1 flex-col">
+              <blockquote className="text-lg leading-snug md:text-xl">“{review.quote}”</blockquote>
+              <figcaption className="mt-auto pt-5 text-base">
+                <span className="font-semibold">{review.author}</span>
+                <span className="text-ink/70"> · Paciente · {review.date}</span>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
